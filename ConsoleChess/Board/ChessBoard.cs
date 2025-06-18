@@ -18,10 +18,39 @@
             return _pieces[row, column];
         }
 
+        public Piece Piece(Position position)
+        {
+            return _pieces[position.Row, position.Column];
+        }
+
+        public bool ExistPiece(Position position)
+        {
+            ValidatePosition(position);
+
+            return Piece(position) != null;
+        }
+
         public void SetPiece(Piece piece, Position position)
         {
+            if (ExistPiece(position))
+                throw new ChessBoardException("There is already a piece on this position!");
+
             _pieces[position.Row, position.Column] = piece;
             piece.Position = position;
+        }
+
+        public bool ValidPosition(Position position)
+        {
+            if (position.Row < 0 || position.Row >= Rows || position.Column < 0 || position.Column >= Columns)
+                return false;
+
+            return true;
+        }
+
+        public void ValidatePosition(Position position)
+        {
+            if (!ValidPosition(position))
+                throw new ChessBoardException("Invalid position!");
         }
     }
 }

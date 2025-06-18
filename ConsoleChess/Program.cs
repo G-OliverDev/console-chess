@@ -7,13 +7,20 @@ namespace ConsoleChess
     {
         static void Main(string[] args)
         {
-            ChessBoard board = new ChessBoard(8, 8);
+            try
+            {
+                ChessBoard board = new ChessBoard(8, 8);
 
-            board.SetPiece(new Rook(Color.Black, board), new Position(0, 0));
-            board.SetPiece(new Rook(Color.Black, board), new Position(1, 3));
-            board.SetPiece(new King(Color.Black, board), new Position(2, 4));
+                board.SetPiece(new Rook(Color.Black, board), new Position(0, 0));
+                board.SetPiece(new Rook(Color.Black, board), new Position(1, 9));
+                board.SetPiece(new King(Color.Black, board), new Position(0, 2));
 
-            Screen.PrintBoard(board);
+                Screen.PrintBoard(board);
+            }
+            catch (ChessBoardException exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
         }
     }
 }
