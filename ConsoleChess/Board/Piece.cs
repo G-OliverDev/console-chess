@@ -20,6 +20,26 @@
             MovesQuantity++;
         }
 
+        public bool AreTherePossibleMoves()
+        {
+            bool[,] possibleMoves = PossibleMoves();
+            for (int i = 0; i < Board.Rows; i++)
+            {
+                for (int j = 0; j < Board.Columns; j++)
+                {
+                    if (possibleMoves[i, j])
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool CanMoveTo(Position position)
+        {
+            return PossibleMoves()[position.Row, position.Column];
+        }
+
         public abstract bool[,] PossibleMoves();
     }
 }
