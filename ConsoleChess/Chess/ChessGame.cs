@@ -10,6 +10,7 @@ namespace ConsoleChess.Chess
         public bool Finished { get; private set; }
         private HashSet<Piece> _pieces;
         private HashSet<Piece> _capturedPieces;
+        public bool Check { get; private set; }
 
         public ChessGame()
         {
@@ -17,12 +18,13 @@ namespace ConsoleChess.Chess
             Turn = 1;
             CurrentPlayer = Color.White;
             Finished = false;
+            Check = false;
             _pieces = [];
             _capturedPieces = [];
             SetPieces();
         }
 
-        public void ExecuteMove(Position origin, Position destination)
+        private Piece ExecuteMove(Position origin, Position destination)
         {
             Piece piece = Board.RemovePiece(origin);
             piece.IncreaseMovesQuantity();
@@ -31,11 +33,40 @@ namespace ConsoleChess.Chess
 
             if (capturedPiece != null)
                 _capturedPieces.Add(capturedPiece);
+
+            return capturedPiece;
+        }
+
+        private void UndoMove(Position origin, Position destination, Piece capturedPiece)
+        {
+            Piece piece = Board.RemovePiece(destination);
+            piece.DecreaseMovesQuantity();
+
+            if (capturedPiece != null)
+            {
+                Board.SetPiece(capturedPiece, destination);
+                _capturedPieces.Remove(capturedPiece);
+            }
+
+            Board.SetPiece(piece, origin);
         }
 
         public void PlayMove(Position origin, Position destination)
         {
-            ExecuteMove(origin, destination);
+            Piece capturedPiece = ExecuteMove(origin, destination);
+
+            if (IsInCheck(CurrentPlayer))
+            {
+                UndoMove(origin, destination, capturedPiece);
+
+                throw new ChessBoardException("You can't put yourself in check!");
+            }
+
+            if (IsInCheck(Opponent(CurrentPlayer)))
+                Check = true;
+            else
+                Check = false;
+
             Turn++;
             ChangeCurrentPlayer();
         }
@@ -91,6 +122,43 @@ namespace ConsoleChess.Chess
 
             return aux;
         }   
+
+        private Color Opponent(Color color)
+        {
+            if (color == Color.White)
+                return Color.Black;
+            else
+                return Color.White;
+        }
+
+        private Piece King(Color color)
+        {
+            foreach (Piece piece in InGamePieces(color))
+            {
+                if (piece is King)
+                    return piece;
+            }
+
+            return null;
+        }
+
+        public bool IsInCheck(Color color)
+        {
+            Piece king = King(color);
+
+            if (king == null)
+                throw new ChessBoardException("There is no king of the color " + color + " on the board!");
+
+            foreach (Piece piece in InGamePieces(Opponent(color)))
+            {
+                bool[,] possibleMoves = piece.PossibleMoves();
+
+                if (possibleMoves[king.Position.Row, king.Position.Column])
+                    return true;
+            }
+
+            return false;
+        }
 
         private void SetNewPiece(char column, int row, Piece piece)
         {
