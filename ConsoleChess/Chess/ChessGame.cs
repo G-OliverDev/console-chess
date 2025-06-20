@@ -90,7 +90,7 @@ namespace ConsoleChess.Chess
 
         public void ValidateDestinationPosition(Position origin, Position destination)
         {
-            if (!Board.Piece(origin).CanMoveTo(destination))
+            if (!Board.Piece(origin).PossibleMove(destination))
                 throw new ChessBoardException("Invalid destination position!");
         }
 
