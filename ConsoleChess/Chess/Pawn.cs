@@ -4,7 +4,12 @@ namespace ConsoleChess.Chess
 {
     internal class Pawn : Piece
     {
-        public Pawn(Color color, ChessBoard board) : base(color, board) { }
+        private ChessGame _game;
+
+        public Pawn(Color color, ChessBoard board, ChessGame game) : base(color, board)
+        {
+            _game = game;
+        }
 
         private bool IsThereEnemy(Position position)
         {
@@ -41,6 +46,22 @@ namespace ConsoleChess.Chess
                 pos.SetValues(Position.Row - 1, Position.Column + 1);
                 if (Board.ValidPosition(pos) && IsThereEnemy(pos))
                     possibleMoves[pos.Row, pos.Column] = true;
+
+                // #SpecialMove En Passant
+                if (Position.Row == 3)
+                {
+                    Position left = new Position(Position.Row, Position.Column - 1);
+                    if (Board.ValidPosition(left) && IsThereEnemy(left) && Board.Piece(left) == _game.EnPassantVulnerable)
+                    {
+                        possibleMoves[left.Row - 1, left.Column] = true;
+                    }
+
+                    Position right = new Position(Position.Row, Position.Column + 1);
+                    if (Board.ValidPosition(right) && IsThereEnemy(right) && Board.Piece(right) == _game.EnPassantVulnerable)
+                    {
+                        possibleMoves[right.Row - 1, right.Column] = true;
+                    }
+                }
             }
             else
             {
@@ -59,6 +80,22 @@ namespace ConsoleChess.Chess
                 pos.SetValues(Position.Row + 1, Position.Column + 1);
                 if (Board.ValidPosition(pos) && IsThereEnemy(pos))
                     possibleMoves[pos.Row, pos.Column] = true;
+
+                // #SpecialMove En Passant
+                if (Position.Row == 4)
+                {
+                    Position left = new Position(Position.Row, Position.Column - 1);
+                    if (Board.ValidPosition(left) && IsThereEnemy(left) && Board.Piece(left) == _game.EnPassantVulnerable)
+                    {
+                        possibleMoves[left.Row + 1, left.Column] = true;
+                    }
+
+                    Position right = new Position(Position.Row, Position.Column + 1);
+                    if (Board.ValidPosition(right) && IsThereEnemy(right) && Board.Piece(right) == _game.EnPassantVulnerable)
+                    {
+                        possibleMoves[right.Row + 1, right.Column] = true;
+                    }
+                }
             }
 
             return possibleMoves;
